@@ -1,33 +1,19 @@
-//! By convention, main.zig is where your main function lives in the case that
-//! you are building an executable. If you are making a library, the convention
-//! is to delete this file and start with root.zig instead.
 const std = @import("std");
+const win32 = std.os.windows;
+const print = std.debug.print;
 
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+extern "user32" fn MessageBoxA(?win32.HWND, [*:0]const u8, [*:0]const u8, u32) callconv(win32.WINAPI) i32;
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+pub fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTANCE, lpCmdLine: [*:0]u16, nCmdShow: i32) callconv(win32.WINAPI) i32 {
+    const MB_OK = 0x00000000;
+    const MB_ICONINFORMATION = 0x00000040;
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    _ = MessageBoxA(null, "fddfdf", "fdsfdsfsf", MB_OK | MB_ICONINFORMATION);
 
-    try bw.flush(); // Don't forget to flush!
-}
+    _ = hInstance;
+    _ = hPrevInstance;
+    _ = lpCmdLine;
+    _ = nCmdShow;
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    // Try passing `--fuzz` to `zig build` and see if it manages to fail this test case!
-    const input_bytes = std.testing.fuzzInput(.{});
-    try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input_bytes));
+    return 0;
 }
