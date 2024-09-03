@@ -8,7 +8,7 @@ pub fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTANCE, lpC
     const MB_OK = 0x00000000;
     const MB_ICONINFORMATION = 0x00000040;
 
-    _ = MessageBoxA(null, "fddfdf", "fdsfdsfsf", MB_OK | MB_ICONINFORMATION);
+    _ = MessageBoxA(null, "Calm down, you are not one of the turtles.", "Malte ftw!", MB_OK | MB_ICONINFORMATION);
 
     _ = hInstance;
     _ = hPrevInstance;
