@@ -3,14 +3,14 @@ const w32 = std.os.windows;
 const b = @import("bindings.zig");
 const print = std.debug.print;
 
-pub fn wWinMain(instance: w32.HINSTANCE, hPrevInstance: ?w32.HINSTANCE, lpCmdLine: [*:0]u16, nCmdShow: i32) callconv(w32.WINAPI) i32 {
-    _ = hPrevInstance;
-    _ = lpCmdLine;
-    _ = nCmdShow;
+pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, commandLine: [*:0]u16, windowSettings: i32) callconv(w32.WINAPI) i32 {
+    _ = previousInstance;
+    _ = commandLine; // https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getcommandlinea
+    _ = windowSettings; // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
 
     const className = std.unicode.utf8ToUtf16LeStringLiteral("BengtsBullar");
 
-    const w = b.WNDCLASSEXW{
+    const windowClass = b.WNDCLASSEXW{
         .style = 0,
         .lpfnWndProc = @ptrCast(@constCast(&mainWindowCallback)),
         .cbClsExtra = 0,
@@ -24,9 +24,7 @@ pub fn wWinMain(instance: w32.HINSTANCE, hPrevInstance: ?w32.HINSTANCE, lpCmdLin
         .hIconSm = null,
     };
 
-    const cid = b.RegisterClassExW(&w);
-
-    if (cid == 0) {
+    if (b.RegisterClassExW(&windowClass) == 0) {
         const errorCode = w32.GetLastError();
         print("Error registering class: {d}\n", .{errorCode});
         return 0;
