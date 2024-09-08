@@ -1,0 +1,53 @@
+const std = @import("std");
+const win32 = std.os.windows;
+
+pub const MSG = extern struct {
+    hWnd: ?win32.HWND,
+    message: win32.UINT,
+    wParam: win32.WPARAM,
+    lParam: win32.LPARAM,
+    time: win32.DWORD,
+    pt: win32.POINT,
+    lPrivate: win32.DWORD,
+};
+
+pub const WNDCLASSEXW = extern struct {
+    cbSize: win32.UINT = @sizeOf(WNDCLASSEXW),
+    style: win32.UINT,
+    lpfnWndProc: win32.PROC,
+    cbClsExtra: i32 = 0,
+    cbWndExtra: i32 = 0,
+    hInstance: win32.HINSTANCE,
+    hIcon: ?win32.HANDLE,
+    hCursor: ?win32.HANDLE,
+    hbrBackground: ?win32.HANDLE,
+    lpszMenuName: ?[*:0]const u16,
+    lpszClassName: [*:0]const u16,
+    hIconSm: ?win32.HANDLE,
+};
+
+pub extern "user32" fn GetMessageW(lpMsg: *MSG, hWnd: ?win32.HWND, wMsgFilterMin: win32.UINT, wMsgFilterMax: win32.UINT) callconv(win32.WINAPI) win32.BOOL;
+
+pub extern "user32" fn TranslateMessage(lpMsg: *const MSG) callconv(win32.WINAPI) win32.BOOL;
+
+pub extern "user32" fn DispatchMessageW(lpMsg: *const MSG) callconv(win32.WINAPI) win32.LRESULT;
+
+pub extern "user32" fn DefWindowProcA(hWnd: win32.HWND, Msg: win32.UINT, wParam: win32.WPARAM, lParam: win32.LPARAM) win32.LRESULT;
+
+pub extern "user32" fn CreateWindowExW(dwExStyle: win32.DWORD, lpClassName: [*:0]const u16, lpWindowName: [*:0]const u16, dwStyle: win32.DWORD, X: i32, Y: i32, nWidth: i32, nHeight: i32, hWindParent: ?win32.HWND, hMenu: ?win32.HMENU, hInstance: win32.HINSTANCE, lpParam: ?win32.LPVOID) callconv(win32.WINAPI) ?win32.HWND;
+
+pub extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(win32.WINAPI) win32.ATOM;
+
+pub const CS_CLASSDC = 0x0040;
+pub const CS_HREDRAW = 0x0002;
+pub const CS_VREDRAW = 0x0001;
+
+pub const WS_OVERLAPPED = 0x00000000;
+pub const WS_CAPTION = 0x00C00000;
+pub const WS_SYSMENU = 0x00080000;
+pub const WS_THICKFRAME = 0x00040000;
+pub const WS_MINIMIZEBOX = 0x00020000;
+pub const WS_MAXIMIZEBOX = 0x00010000;
+
+pub const WS_WINDOWOVERLAPPED = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+pub const WS_VISIBLE = 0x10000000;
