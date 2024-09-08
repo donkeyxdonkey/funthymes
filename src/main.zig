@@ -67,25 +67,24 @@ pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, comma
 }
 
 pub fn mainWindowCallback(window: w32.HWND, message: w32.UINT, wParam: w32.WPARAM, lParam: w32.LPARAM) callconv(w32.WINAPI) w32.LRESULT {
-    const WM_SIZE = 0x0005;
-    const WM_DESTROY = 0x0002;
-    const WM_CLOSE = 0x0010;
-    const WM_ACTIVATEAPP = 0x001C;
-
     const result: i64 = 0;
 
     switch (message) {
-        WM_SIZE => {
+        b.WM_SIZE => {
             print("WM_SIZE\n", .{});
         },
-        WM_DESTROY => {
+        b.WM_DESTROY => {
             print("WM_DESTROY\n", .{});
         },
-        WM_CLOSE => {
+        b.WM_CLOSE => {
             print("WM_CLOSE\n", .{});
         },
-        WM_ACTIVATEAPP => {
+        b.WM_ACTIVATEAPP => {
             print("WM_ACTIVATEAPP\n", .{});
+        },
+        b.WM_PAINT => {
+            // jah
+            print("WM_PAINT\n", .{});
         },
         else => {
             return b.DefWindowProcA(window, message, wParam, lParam);
