@@ -86,10 +86,10 @@ pub fn mainWindowCallback(window: w32.HWND, message: w32.UINT, wParam: w32.WPARA
         b.WM_PAINT => {
             var paint: b.PAINTSTRUCT = undefined;
             const deviceContext: w32.HDC = b.BeginPaint(window, &paint);
-            const x: i32 = paint.rcPaint.left;
-            const y: i32 = paint.rcPaint.top;
-            const height: i32 = paint.rcPaint.bottom - paint.rcPaint.top;
-            const width: i32 = paint.rcPaint.right - paint.rcPaint.left;
+            const x: i32 = paint.rect.left;
+            const y: i32 = paint.rect.top;
+            const height: i32 = paint.rect.bottom - paint.rect.top;
+            const width: i32 = paint.rect.right - paint.rect.left;
 
             _ = b.PatBlt(deviceContext, x, y, width, height, b.WHITENESS);
             print("WM_PAINT\n", .{});

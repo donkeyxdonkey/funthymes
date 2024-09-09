@@ -23,12 +23,12 @@ pub const WM_ACTIVATEAPP = 0x001C;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-paintstruct
 pub const PAINTSTRUCT = extern struct {
-    hdc: win32.HDC,
-    fErase: win32.BOOL,
-    rcPaint: win32.RECT,
-    fRestore: win32.BOOL,
-    fIncUpdate: win32.BOOL,
-    rgbReserved: [32]u8,
+    deviceContextHandle: win32.HDC, // A handle to the display DC to be used for painting.
+    fErase: win32.BOOL, // Indicates whether the background must be erased. This value is nonzero if the application should erase the background. The application is responsible for erasing the background if a window class is created without a background brush. For more information, see the description of the hbrBackground member of the WNDCLASS structure.
+    rect: win32.RECT, // A RECT structure that specifies the upper left and lower right corners of the rectangle in which the painting is requested, in device units relative to the upper-left corner of the client area.
+    fRestore: win32.BOOL, // Reserved; used internally by the system.
+    fIncUpdate: win32.BOOL, // Reserved; used internally by the system.
+    rgbReserved: [32]u8, // Reserved; used internally by the system.
 };
 
 pub const MSG = extern struct {

@@ -15,7 +15,7 @@ pub extern "gdi32" fn PatBlt(
     hdc: win32.HDC,
     x: win32.BOOL,
     y: win32.BOOL,
-    w: win32.BOOL,
-    h: win32.BOOL,
-    rop: win32.DWORD,
+    width: win32.BOOL,
+    height: win32.BOOL,
+    rop: u32,
 ) win32.BOOL;
