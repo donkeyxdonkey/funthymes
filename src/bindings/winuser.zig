@@ -52,43 +52,48 @@ pub const PAINTSTRUCT = extern struct {
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-msg
 pub const MSG = extern struct {
-    handle: ?HWND, // A handle to the window whose window procedure receives the message. This member is NULL when the message is a thread message.
-    message: UINT, // The message identifier. Applications can only use the low word; the high word is reserved by the system.
-    wParam: WPARAM, // Additional information about the message. The exact meaning depends on the value of the message member.
-    lParam: LPARAM, // Additional information about the message. The exact meaning depends on the value of the message member.
-    time: DWORD, // The time at which the message was posted.
-    cursorPosition: POINT, // The cursor position, in screen coordinates, when the message was posted.
+    handle: ?HWND,
+    message: UINT,
+    wParam: WPARAM,
+    lParam: LPARAM,
+    time: DWORD,
+    cursorPosition: POINT,
     lPrivate: DWORD,
 };
 
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
 pub const WNDCLASSEXW = extern struct {
     cbSize: UINT = @sizeOf(WNDCLASSEXW),
     style: UINT,
     lpfnWndProc: PROC,
-    cbClsExtra: i32 = 0,
-    cbWndExtra: i32 = 0,
-    hInstance: HINSTANCE,
-    hIcon: ?HANDLE,
-    hCursor: ?HANDLE,
-    hbrBackground: ?HANDLE,
-    lpszMenuName: ?[*:0]const u16,
-    lpszClassName: [*:0]const u16,
-    hIconSm: ?HANDLE,
+    allocExtraBytesStruct: i32 = 0,
+    allocExtraBytesWindow: i32 = 0,
+    instance: HINSTANCE,
+    icon: ?HANDLE,
+    cursor: ?HANDLE,
+    handleBackground: ?HANDLE,
+    menuName: ?[*:0]const u16,
+    className: [*:0]const u16,
+    handleIcon: ?HANDLE,
 };
 
-pub extern "user32" fn BeginPaint(
-    hWnd: HWND,
-    lpPaint: *PAINTSTRUCT,
-) callconv(WINAPI) HDC;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-beginpaint
+pub extern "user32" fn BeginPaint(handle: HWND, paint: *PAINTSTRUCT) callconv(WINAPI) HDC;
 
-pub extern "user32" fn GetMessageW(lpMsg: *MSG, hWnd: ?HWND, wMsgFilterMin: UINT, wMsgFilterMax: UINT) callconv(WINAPI) BOOL;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
+pub extern "user32" fn GetMessageW(message: *MSG, handle: ?HWND, messageFilterMin: UINT, messageFilterMax: UINT) callconv(WINAPI) BOOL;
 
-pub extern "user32" fn TranslateMessage(lpMsg: *const MSG) callconv(WINAPI) BOOL;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+pub extern "user32" fn TranslateMessage(message: *const MSG) callconv(WINAPI) BOOL;
 
-pub extern "user32" fn DispatchMessageW(lpMsg: *const MSG) callconv(WINAPI) LRESULT;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
+pub extern "user32" fn DispatchMessageW(message: *const MSG) callconv(WINAPI) LRESULT;
 
-pub extern "user32" fn DefWindowProcA(hWnd: HWND, Msg: UINT, wParam: WPARAM, lParam: LPARAM) LRESULT;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
+pub extern "user32" fn DefWindowProcA(handle: HWND, message: UINT, wParam: WPARAM, lParam: LPARAM) LRESULT;
 
-pub extern "user32" fn CreateWindowExW(dwExStyle: DWORD, lpClassName: [*:0]const u16, lpWindowName: [*:0]const u16, dwStyle: DWORD, X: i32, Y: i32, nWidth: i32, nHeight: i32, hWindParent: ?HWND, hMenu: ?HMENU, hInstance: HINSTANCE, lpParam: ?LPVOID) callconv(WINAPI) ?HWND;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
+pub extern "user32" fn CreateWindowExW(extendedStyle: DWORD, className: [*:0]const u16, windowName: [*:0]const u16, style: DWORD, x: i32, y: i32, width: i32, height: i32, handleParent: ?HWND, menu: ?HMENU, instance: HINSTANCE, mdiPointer: ?LPVOID) callconv(WINAPI) ?HWND;
 
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
 pub extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(WINAPI) ATOM;

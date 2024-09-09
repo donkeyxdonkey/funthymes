@@ -1,6 +1,8 @@
 const std = @import("std");
 const win32 = std.os.windows;
 
+const WINAPI = win32.WINAPI;
+
 const HDC = win32.HDC;
 const BOOL = win32.BOOL;
 
@@ -21,4 +23,4 @@ pub extern "gdi32" fn PatBlt(
     width: BOOL,
     height: BOOL,
     rop: u32,
-) BOOL;
+) callconv(WINAPI) BOOL;

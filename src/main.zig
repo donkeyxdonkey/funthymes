@@ -1,10 +1,21 @@
 const std = @import("std");
-const w32 = std.os.windows;
+const win32 = std.os.windows;
 const bn = @import("bindings.zig");
 const b = bn.bindings;
 const print = std.debug.print;
 
-pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, commandLine: [*:0]u16, windowSettings: i32) callconv(w32.WINAPI) i32 {
+const WINAPI = win32.WINAPI;
+
+const HINSTANCE = win32.HINSTANCE;
+const BOOL = win32.BOOL;
+const HWND = win32.HWND;
+const UINT = win32.UINT;
+const WPARAM = win32.WPARAM;
+const LPARAM = win32.LPARAM;
+const LRESULT = win32.LRESULT;
+const HDC = win32.HDC;
+
+pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: [*:0]u16, windowSettings: i32) callconv(WINAPI) i32 {
     _ = previousInstance;
     _ = commandLine; // https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getcommandlinea
     _ = windowSettings; // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
@@ -14,19 +25,19 @@ pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, comma
     const windowClass = b.WNDCLASSEXW{
         .style = 0,
         .lpfnWndProc = @ptrCast(@constCast(&mainWindowCallback)),
-        .cbClsExtra = 0,
-        .cbWndExtra = 0,
-        .hInstance = instance,
-        .hIcon = null,
-        .hCursor = null,
-        .hbrBackground = null,
-        .lpszMenuName = null,
-        .lpszClassName = className,
-        .hIconSm = null,
+        .allocExtraBytesStruct = 0,
+        .allocExtraBytesWindow = 0,
+        .instance = instance,
+        .icon = null,
+        .cursor = null,
+        .handleBackground = null,
+        .menuName = null,
+        .className = className,
+        .handleIcon = null,
     };
 
     if (b.RegisterClassExW(&windowClass) == 0) {
-        const errorCode = w32.GetLastError();
+        const errorCode = win32.GetLastError();
         print("Error registering class: {d}\n", .{errorCode});
         return 0;
     }
@@ -49,7 +60,7 @@ pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, comma
     if (windowHandle) |window| {
         while (true) {
             var Message: b.MSG = undefined;
-            const MessageResult: w32.BOOL = b.GetMessageW(&Message, null, 0, 0);
+            const MessageResult: BOOL = b.GetMessageW(&Message, null, 0, 0);
 
             if (MessageResult > 0) {
                 _ = b.TranslateMessage(&Message);
@@ -60,14 +71,14 @@ pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, comma
         }
         _ = window;
     } else {
-        const errorCode = w32.GetLastError();
+        const errorCode = win32.GetLastError();
         print("Error registering class: {d}\n", .{errorCode});
     }
 
     return 0;
 }
 
-pub fn mainWindowCallback(window: w32.HWND, message: w32.UINT, wParam: w32.WPARAM, lParam: w32.LPARAM) callconv(w32.WINAPI) w32.LRESULT {
+pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: LPARAM) callconv(WINAPI) LRESULT {
     const result: i64 = 0;
 
     switch (message) {
@@ -85,7 +96,7 @@ pub fn mainWindowCallback(window: w32.HWND, message: w32.UINT, wParam: w32.WPARA
         },
         b.WM_PAINT => {
             var paint: b.PAINTSTRUCT = undefined;
-            const deviceContext: w32.HDC = b.BeginPaint(window, &paint);
+            const deviceContext: HDC = b.BeginPaint(window, &paint);
             const x: i32 = paint.rect.left;
             const y: i32 = paint.rect.top;
             const height: i32 = paint.rect.bottom - paint.rect.top;
