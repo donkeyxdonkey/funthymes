@@ -1,6 +1,25 @@
 const std = @import("std");
 const win32 = std.os.windows;
 
+const WINAPI = win32.WINAPI;
+
+const ATOM = win32.ATOM;
+const HDC = win32.HDC;
+const BOOL = win32.BOOL;
+const RECT = win32.RECT;
+const HWND = win32.HWND;
+const UINT = win32.UINT;
+const WPARAM = win32.WPARAM;
+const LPARAM = win32.LPARAM;
+const DWORD = win32.DWORD;
+const POINT = win32.POINT;
+const HINSTANCE = win32.HINSTANCE;
+const PROC = win32.PROC;
+const HANDLE = win32.HANDLE;
+const LRESULT = win32.LRESULT;
+const HMENU = win32.HMENU;
+const LPVOID = win32.LPVOID;
+
 pub const CS_CLASSDC = 0x0040;
 pub const CS_HREDRAW = 0x0002;
 pub const CS_VREDRAW = 0x0001;
@@ -23,52 +42,53 @@ pub const WM_ACTIVATEAPP = 0x001C;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-paintstruct
 pub const PAINTSTRUCT = extern struct {
-    deviceContextHandle: win32.HDC, // A handle to the display DC to be used for painting.
-    fErase: win32.BOOL, // Indicates whether the background must be erased. This value is nonzero if the application should erase the background. The application is responsible for erasing the background if a window class is created without a background brush. For more information, see the description of the hbrBackground member of the WNDCLASS structure.
-    rect: win32.RECT, // A RECT structure that specifies the upper left and lower right corners of the rectangle in which the painting is requested, in device units relative to the upper-left corner of the client area.
-    fRestore: win32.BOOL, // Reserved; used internally by the system.
-    fIncUpdate: win32.BOOL, // Reserved; used internally by the system.
+    deviceContextHandle: HDC, // A handle to the display DC to be used for painting.
+    eraseBackground: BOOL, // Indicates whether the background must be erased. This value is nonzero if the application should erase the background. The application is responsible for erasing the background if a window class is created without a background brush. For more information, see the description of the hbrBackground member of the WNDCLASS structure.
+    rect: RECT, // A RECT structure that specifies the upper left and lower right corners of the rectangle in which the painting is requested, in device units relative to the upper-left corner of the client area.
+    fRestore: BOOL, // Reserved; used internally by the system.
+    fIncUpdate: BOOL, // Reserved; used internally by the system.
     rgbReserved: [32]u8, // Reserved; used internally by the system.
 };
 
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-msg
 pub const MSG = extern struct {
-    hWnd: ?win32.HWND,
-    message: win32.UINT,
-    wParam: win32.WPARAM,
-    lParam: win32.LPARAM,
-    time: win32.DWORD,
-    pt: win32.POINT,
-    lPrivate: win32.DWORD,
+    handle: ?HWND, // A handle to the window whose window procedure receives the message. This member is NULL when the message is a thread message.
+    message: UINT, // The message identifier. Applications can only use the low word; the high word is reserved by the system.
+    wParam: WPARAM, // Additional information about the message. The exact meaning depends on the value of the message member.
+    lParam: LPARAM, // Additional information about the message. The exact meaning depends on the value of the message member.
+    time: DWORD, // The time at which the message was posted.
+    cursorPosition: POINT, // The cursor position, in screen coordinates, when the message was posted.
+    lPrivate: DWORD,
 };
 
 pub const WNDCLASSEXW = extern struct {
-    cbSize: win32.UINT = @sizeOf(WNDCLASSEXW),
-    style: win32.UINT,
-    lpfnWndProc: win32.PROC,
+    cbSize: UINT = @sizeOf(WNDCLASSEXW),
+    style: UINT,
+    lpfnWndProc: PROC,
     cbClsExtra: i32 = 0,
     cbWndExtra: i32 = 0,
-    hInstance: win32.HINSTANCE,
-    hIcon: ?win32.HANDLE,
-    hCursor: ?win32.HANDLE,
-    hbrBackground: ?win32.HANDLE,
+    hInstance: HINSTANCE,
+    hIcon: ?HANDLE,
+    hCursor: ?HANDLE,
+    hbrBackground: ?HANDLE,
     lpszMenuName: ?[*:0]const u16,
     lpszClassName: [*:0]const u16,
-    hIconSm: ?win32.HANDLE,
+    hIconSm: ?HANDLE,
 };
 
 pub extern "user32" fn BeginPaint(
-    hWnd: win32.HWND,
+    hWnd: HWND,
     lpPaint: *PAINTSTRUCT,
-) callconv(win32.WINAPI) win32.HDC;
+) callconv(WINAPI) HDC;
 
-pub extern "user32" fn GetMessageW(lpMsg: *MSG, hWnd: ?win32.HWND, wMsgFilterMin: win32.UINT, wMsgFilterMax: win32.UINT) callconv(win32.WINAPI) win32.BOOL;
+pub extern "user32" fn GetMessageW(lpMsg: *MSG, hWnd: ?HWND, wMsgFilterMin: UINT, wMsgFilterMax: UINT) callconv(WINAPI) BOOL;
 
-pub extern "user32" fn TranslateMessage(lpMsg: *const MSG) callconv(win32.WINAPI) win32.BOOL;
+pub extern "user32" fn TranslateMessage(lpMsg: *const MSG) callconv(WINAPI) BOOL;
 
-pub extern "user32" fn DispatchMessageW(lpMsg: *const MSG) callconv(win32.WINAPI) win32.LRESULT;
+pub extern "user32" fn DispatchMessageW(lpMsg: *const MSG) callconv(WINAPI) LRESULT;
 
-pub extern "user32" fn DefWindowProcA(hWnd: win32.HWND, Msg: win32.UINT, wParam: win32.WPARAM, lParam: win32.LPARAM) win32.LRESULT;
+pub extern "user32" fn DefWindowProcA(hWnd: HWND, Msg: UINT, wParam: WPARAM, lParam: LPARAM) LRESULT;
 
-pub extern "user32" fn CreateWindowExW(dwExStyle: win32.DWORD, lpClassName: [*:0]const u16, lpWindowName: [*:0]const u16, dwStyle: win32.DWORD, X: i32, Y: i32, nWidth: i32, nHeight: i32, hWindParent: ?win32.HWND, hMenu: ?win32.HMENU, hInstance: win32.HINSTANCE, lpParam: ?win32.LPVOID) callconv(win32.WINAPI) ?win32.HWND;
+pub extern "user32" fn CreateWindowExW(dwExStyle: DWORD, lpClassName: [*:0]const u16, lpWindowName: [*:0]const u16, dwStyle: DWORD, X: i32, Y: i32, nWidth: i32, nHeight: i32, hWindParent: ?HWND, hMenu: ?HMENU, hInstance: HINSTANCE, lpParam: ?LPVOID) callconv(WINAPI) ?HWND;
 
-pub extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(win32.WINAPI) win32.ATOM;
+pub extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(WINAPI) ATOM;

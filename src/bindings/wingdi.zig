@@ -1,6 +1,9 @@
 const std = @import("std");
 const win32 = std.os.windows;
 
+const HDC = win32.HDC;
+const BOOL = win32.BOOL;
+
 // rop - raster operation code
 pub const PATCOPY = 0x00F00021; // Copies the specified pattern into the destination bitmap.
 pub const PATINVERT = 0x005A0049; // Combines the colors of the specified pattern with the colors of the destination rectangle by using the Boolean XOR operator.
@@ -12,10 +15,10 @@ pub const WHITENESS = 0x00FF0062; // Fills the destination rectangle using the c
 // The PatBlt function paints the specified rectangle using the brush that is currently selected into the specified device context.
 // The brush color and the surface color or colors are combined by using the specified raster operation.
 pub extern "gdi32" fn PatBlt(
-    hdc: win32.HDC,
-    x: win32.BOOL,
-    y: win32.BOOL,
-    width: win32.BOOL,
-    height: win32.BOOL,
+    hdc: HDC,
+    x: BOOL,
+    y: BOOL,
+    width: BOOL,
+    height: BOOL,
     rop: u32,
-) win32.BOOL;
+) BOOL;
