@@ -11,6 +11,29 @@ pub const MSG = extern struct {
     lPrivate: win32.DWORD,
 };
 
+pub const PAINTSTRUCT = extern struct {
+    hdc: win32.HDC,
+    fErase: win32.BOOL,
+    rcPaint: win32.RECT,
+    fRestore: win32.BOOL,
+    fIncUpdate: win32.BOOL,
+    rgbReserved: [32]u8,
+};
+
+pub extern "user32" fn BeginPaint(
+    hWnd: win32.HWND,
+    lpPaint: *PAINTSTRUCT,
+) callconv(win32.WINAPI) win32.HDC;
+
+pub extern "gdi32" fn PatBlt(
+    hdc: win32.HDC,
+    x: win32.BOOL,
+    y: win32.BOOL,
+    w: win32.BOOL,
+    h: win32.BOOL,
+    rop: win32.DWORD,
+) win32.BOOL;
+
 pub const WNDCLASSEXW = extern struct {
     cbSize: win32.UINT = @sizeOf(WNDCLASSEXW),
     style: win32.UINT,
@@ -25,6 +48,12 @@ pub const WNDCLASSEXW = extern struct {
     lpszClassName: [*:0]const u16,
     hIconSm: ?win32.HANDLE,
 };
+
+pub const PATCOPY = 0x00F00021;
+pub const PATINVERT = 0x005A0049;
+pub const DSTINVERT = 0x00550009;
+pub const BLACKNESS = 0x00000042;
+pub const WHITENESS = 0x00FF0062;
 
 pub extern "user32" fn GetMessageW(lpMsg: *MSG, hWnd: ?win32.HWND, wMsgFilterMin: win32.UINT, wMsgFilterMax: win32.UINT) callconv(win32.WINAPI) win32.BOOL;
 
