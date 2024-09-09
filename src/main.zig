@@ -1,6 +1,7 @@
 const std = @import("std");
 const w32 = std.os.windows;
-const b = @import("bindings.zig");
+const bn = @import("bindings.zig");
+const b = bn.bindings;
 const print = std.debug.print;
 
 pub fn wWinMain(instance: w32.HINSTANCE, previousInstance: ?w32.HINSTANCE, commandLine: [*:0]u16, windowSettings: i32) callconv(w32.WINAPI) i32 {
