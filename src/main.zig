@@ -146,22 +146,14 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 }
 
 fn resizeDIBSection(width: i32, height: i32) void {
-    if (bitMapHandle) |handle| {
-        _ = b.DeleteObject(handle);
-    }
-
-    if (bitmapDeviceContext == undefined) {
-        bitmapDeviceContext = b.CreateCompatibleDC(null);
-    }
-
     bitmapInfo.header.width = width;
     bitmapInfo.header.height = height;
     bitmapInfo.header.planes = 1;
     bitmapInfo.header.bitCount = 32;
     bitmapInfo.header.compression = b.BI_RGB;
 
-    bitMapHandle = b.CreateDIBSection(bitmapDeviceContext, &bitmapInfo, b.DIB_RGB_COLORS, &bitmapMemory, null, 0);
-    _ = b.ReleaseDC(null, bitmapDeviceContext);
+    const bytesPerPixel = 4;
+    const bitmapMemorySize = (width * height) * bytesPerPixel;
 }
 
 fn updateWindow(deviceContext: HDC, x: i32, y: i32, width: i32, height: i32) void {
