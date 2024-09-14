@@ -3,6 +3,7 @@ const bindings = struct {
     pub usingnamespace @import("bindings/wingdi.zig");
     pub usingnamespace @import("bindings/winuser.zig");
     pub usingnamespace @import("bindings/memoryapi.zig");
+    pub usingnamespace @import("bindings/heapapi.zig");
 };
 
 const b = bindings;
