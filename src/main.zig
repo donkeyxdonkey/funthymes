@@ -28,6 +28,9 @@ var bitmapDeviceContext: HDC = undefined;
 var bitmapMemory: *anyopaque = undefined;
 var bitmapInfo: b.BITMAPINFO = undefined;
 
+var bitmapWidth: i32 = 0;
+var bitmapHeight: i32 = 0;
+
 fn init() void {
     bitmapInfo.header.planes = 1;
     bitmapInfo.header.bitCount = 32;
@@ -66,20 +69,7 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
         return 0;
     }
 
-    const windowHandle = b.CreateWindowExW(
-        0,
-        className,
-        className,
-        b.WS_WINDOWOVERLAPPED | b.WS_VISIBLE,
-        100,
-        100,
-        800,
-        600,
-        null,
-        null,
-        instance,
-        null,
-    );
+    const windowHandle = b.CreateWindowExW(0, className, className, b.WS_WINDOWOVERLAPPED | b.WS_VISIBLE, 100, 100, 800, 600, null, null, instance, null);
 
     if (windowHandle) |window| {
         running = true;
@@ -134,7 +124,10 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
             const width: i32 = paint.rect.right - paint.rect.left;
             const height: i32 = paint.rect.bottom - paint.rect.top;
 
-            updateWindow(deviceContext, x, y, width, height);
+            var clientRect: RECT = undefined;
+            _ = b.GetClientRect(window, &clientRect);
+
+            updateWindow(deviceContext, &clientRect, x, y, width, height);
 
             _ = b.PatBlt(deviceContext, x, y, width, height, b.WHITENESS);
             print("WM_PAINT\n", .{});
@@ -148,16 +141,32 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 }
 
 fn resizeDIBSection(width: i32, height: i32) void {
-    bitmapInfo.header.width = width;
-    bitmapInfo.header.height = height;
+    if (bitmapMemory != undefined) {
+        _ = b.VirtualFree(bitmapMemory, 0, b.MEM_RELEASE);
+    }
+
+    bitmapWidth = width;
+    bitmapHeight = height;
+
+    bitmapInfo.header.width = bitmapWidth;
+    bitmapInfo.header.height = -bitmapHeight;
     bitmapInfo.header.planes = 1;
     bitmapInfo.header.bitCount = 32;
     bitmapInfo.header.compression = b.BI_RGB;
 
     const bytesPerPixel = 4;
-    const bitmapMemorySize = (width * height) * bytesPerPixel;
+    const bitmapMemorySize: usize = @as(usize, (@intCast((bitmapWidth * bitmapHeight) * bytesPerPixel)));
+    bitmapMemory = b.VirtualAlloc(null, bitmapMemorySize, b.MEM_COMMIT, b.PAGE_READWRITE);
 }
 
-fn updateWindow(deviceContext: HDC, x: i32, y: i32, width: i32, height: i32) void {
-    _ = b.StretchDIBits(deviceContext, x, y, width, height, x, y, width, height, bitmapMemory, &bitmapInfo, b.DIB_RGB_COLORS, b.SRCCOPY);
+fn updateWindow(deviceContext: HDC, windowRect: *RECT, x: i32, y: i32, width: i32, height: i32) void {
+    _ = x;
+    _ = y;
+    _ = width;
+    _ = height;
+
+    const windowWidth = windowRect.*.right - windowRect.*.left;
+    const windowHeight = windowRect.*.bottom - windowRect.*.top;
+
+    _ = b.StretchDIBits(deviceContext, 0, 0, bitmapWidth, bitmapHeight, 0, 0, windowWidth, windowHeight, bitmapMemory, &bitmapInfo, b.DIB_RGB_COLORS, b.SRCCOPY);
 }
