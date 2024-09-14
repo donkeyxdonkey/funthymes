@@ -22,7 +22,7 @@ const HBITMAP = win32.HANDLE;
 
 var running: bool = false;
 var bitMapHandle: ?HBITMAP = null;
-var bitmapDeviceContext: ?HDC = null;
+var bitmapDeviceContext: HDC = undefined;
 var bitmapMemory: *anyopaque = undefined;
 var bitmapInfo: b.BITMAPINFO = undefined;
 
@@ -150,7 +150,7 @@ fn resizeDIBSection(width: i32, height: i32) void {
         _ = b.DeleteObject(handle);
     }
 
-    if (!bitmapDeviceContext) {
+    if (bitmapDeviceContext == undefined) {
         bitmapDeviceContext = b.CreateCompatibleDC(null);
     }
 
