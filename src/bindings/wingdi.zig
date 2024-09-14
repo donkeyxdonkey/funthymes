@@ -3,6 +3,7 @@ const win32 = std.os.windows;
 
 const WINAPI = win32.WINAPI;
 
+// https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
 const HDC = win32.HDC;
 const BOOL = win32.BOOL;
 const DWORD = win32.DWORD;
