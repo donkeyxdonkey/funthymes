@@ -1,11 +1,14 @@
 const std = @import("std");
-const win32 = std.os.windows;
-const bn = @import("bindings.zig");
-const b = bn.bindings;
+const bindings = struct {
+    pub usingnamespace @import("bindings/wingdi.zig");
+    pub usingnamespace @import("bindings/winuser.zig");
+};
+
+const b = bindings;
 const print = std.debug.print;
 
+const win32 = std.os.windows;
 const WINAPI = win32.WINAPI;
-
 const HINSTANCE = win32.HINSTANCE;
 const BOOL = win32.BOOL;
 const HWND = win32.HWND;
@@ -14,12 +17,31 @@ const WPARAM = win32.WPARAM;
 const LPARAM = win32.LPARAM;
 const LRESULT = win32.LRESULT;
 const HDC = win32.HDC;
+const RECT = win32.RECT;
+const HBITMAP = win32.HANDLE;
+
+var running: bool = false;
+var bitMapHandle: ?HBITMAP = null;
+var bitmapDeviceContext: HDC = undefined;
+var bitmapMemory: *anyopaque = undefined;
+var bitmapInfo: b.BITMAPINFO = undefined;
+
+fn init() void {
+    bitmapInfo.header.planes = 1;
+    bitmapInfo.header.bitCount = 32;
+    bitmapInfo.header.compression = b.BI_RGB;
+    bitmapInfo.header.sizeImage = 0;
+    bitmapInfo.header.xPelsPerMeter = 0;
+    bitmapInfo.header.yPelsPerMeter = 0;
+    bitmapInfo.header.clrUsed = 0;
+    bitmapInfo.header.clrImportant = 0;
+}
 
 pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: [*:0]u16, windowSettings: i32) callconv(WINAPI) i32 {
     _ = previousInstance;
     _ = commandLine; // https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getcommandlinea
     _ = windowSettings; // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
-
+    init();
     const className = std.unicode.utf8ToUtf16LeStringLiteral("BengtsBullar");
 
     const windowClass = b.WNDCLASSEXW{
@@ -58,7 +80,9 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
     );
 
     if (windowHandle) |window| {
-        while (true) {
+        running = true;
+
+        while (running) {
             var Message: b.MSG = undefined;
             const MessageResult: BOOL = b.GetMessageW(&Message, null, 0, 0);
 
@@ -66,7 +90,7 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
                 _ = b.TranslateMessage(&Message);
                 _ = b.DispatchMessageW(&Message);
             } else {
-                break;
+                running = false;
             }
         }
         _ = window;
@@ -83,13 +107,18 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 
     switch (message) {
         b.WM_SIZE => {
+            var clientRect: RECT = undefined;
+            _ = b.GetClientRect(window, &clientRect);
+            const width: i32 = clientRect.right - clientRect.left;
+            const height: i32 = clientRect.bottom - clientRect.top;
+            resizeDIBSection(width, height);
             print("WM_SIZE\n", .{});
         },
         b.WM_DESTROY => {
-            print("WM_DESTROY\n", .{});
+            running = false;
         },
         b.WM_CLOSE => {
-            print("WM_CLOSE\n", .{});
+            running = false;
         },
         b.WM_ACTIVATEAPP => {
             print("WM_ACTIVATEAPP\n", .{});
@@ -97,10 +126,13 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
         b.WM_PAINT => {
             var paint: b.PAINTSTRUCT = undefined;
             const deviceContext: HDC = b.BeginPaint(window, &paint);
+
             const x: i32 = paint.rect.left;
             const y: i32 = paint.rect.top;
-            const height: i32 = paint.rect.bottom - paint.rect.top;
             const width: i32 = paint.rect.right - paint.rect.left;
+            const height: i32 = paint.rect.bottom - paint.rect.top;
+
+            updateWindow(deviceContext, x, y, width, height);
 
             _ = b.PatBlt(deviceContext, x, y, width, height, b.WHITENESS);
             print("WM_PAINT\n", .{});
@@ -111,4 +143,25 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
     }
 
     return result;
+}
+
+fn resizeDIBSection(width: i32, height: i32) void {
+    if (bitMapHandle) |handle| {
+        _ = b.DeleteObject(handle);
+    } else {
+        bitmapDeviceContext = b.CreateCompatibleDC(null);
+    }
+
+    bitmapInfo.header.width = width;
+    bitmapInfo.header.height = height;
+    bitmapInfo.header.planes = 1;
+    bitmapInfo.header.bitCount = 32;
+    bitmapInfo.header.compression = b.BI_RGB;
+
+    bitMapHandle = b.CreateDIBSection(bitmapDeviceContext, &bitmapInfo, b.DIB_RGB_COLORS, &bitmapMemory, null, 0);
+    _ = b.ReleaseDC(null, bitmapDeviceContext);
+}
+
+fn updateWindow(deviceContext: HDC, x: i32, y: i32, width: i32, height: i32) void {
+    _ = b.StretchDIBits(deviceContext, x, y, width, height, x, y, width, height, bitmapMemory, &bitmapInfo, b.DIB_RGB_COLORS, b.SRCCOPY);
 }

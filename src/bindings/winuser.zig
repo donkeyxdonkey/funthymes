@@ -3,6 +3,7 @@ const win32 = std.os.windows;
 
 const WINAPI = win32.WINAPI;
 
+// https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
 const ATOM = win32.ATOM;
 const HDC = win32.HDC;
 const BOOL = win32.BOOL;
@@ -80,20 +81,29 @@ pub const WNDCLASSEXW = extern struct {
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-beginpaint
 pub extern "user32" fn BeginPaint(handle: HWND, paint: *PAINTSTRUCT) callconv(WINAPI) HDC;
 
-// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
-pub extern "user32" fn GetMessageW(message: *MSG, handle: ?HWND, messageFilterMin: UINT, messageFilterMax: UINT) callconv(WINAPI) BOOL;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
+pub extern "user32" fn CreateWindowExW(extendedStyle: DWORD, className: [*:0]const u16, windowName: [*:0]const u16, style: DWORD, x: i32, y: i32, width: i32, height: i32, handleParent: ?HWND, menu: ?HMENU, instance: HINSTANCE, mdiPointer: ?LPVOID) callconv(WINAPI) ?HWND;
 
-// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
-pub extern "user32" fn TranslateMessage(message: *const MSG) callconv(WINAPI) BOOL;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
+pub extern "user32" fn DefWindowProcA(handle: HWND, message: UINT, wParam: WPARAM, lParam: LPARAM) callconv(WINAPI) LRESULT;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
 pub extern "user32" fn DispatchMessageW(message: *const MSG) callconv(WINAPI) LRESULT;
 
-// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
-pub extern "user32" fn DefWindowProcA(handle: HWND, message: UINT, wParam: WPARAM, lParam: LPARAM) LRESULT;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclientrect
+pub extern "user32" fn GetClientRect(hWnd: HWND, lpRect: *RECT) callconv(WINAPI) BOOL;
 
-// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
-pub extern "user32" fn CreateWindowExW(extendedStyle: DWORD, className: [*:0]const u16, windowName: [*:0]const u16, style: DWORD, x: i32, y: i32, width: i32, height: i32, handleParent: ?HWND, menu: ?HMENU, instance: HINSTANCE, mdiPointer: ?LPVOID) callconv(WINAPI) ?HWND;
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
+pub extern "user32" fn GetMessageW(message: *MSG, handle: ?HWND, messageFilterMin: UINT, messageFilterMax: UINT) callconv(WINAPI) BOOL;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
+pub extern "user32" fn PostQuitMessage(exitCode: BOOL) void;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
 pub extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(WINAPI) ATOM;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+pub extern "user32" fn TranslateMessage(message: *const MSG) callconv(WINAPI) BOOL;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-releasedc
+pub extern "user32" fn ReleaseDC(handle: ?HWND, hdc: HDC) callconv(WINAPI) i32;
