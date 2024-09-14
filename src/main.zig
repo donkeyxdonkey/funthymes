@@ -2,6 +2,7 @@ const std = @import("std");
 const bindings = struct {
     pub usingnamespace @import("bindings/wingdi.zig");
     pub usingnamespace @import("bindings/winuser.zig");
+    pub usingnamespace @import("bindings/memoryapi.zig");
 };
 
 const b = bindings;
