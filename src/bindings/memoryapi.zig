@@ -7,6 +7,7 @@ const LPVOID = win32.LPVOID;
 const SIZE_T = win32.SIZE_T;
 const DWORD = win32.DWORD;
 const BOOL = win32.BOOL;
+const HRESULT = win32.LONG;
 
 // allocation type
 pub const MEM_COMMIT = 0x00001000;

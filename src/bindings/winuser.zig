@@ -20,6 +20,7 @@ const HANDLE = win32.HANDLE;
 const LRESULT = win32.LRESULT;
 const HMENU = win32.HMENU;
 const LPVOID = win32.LPVOID;
+const LPMSG = [*c]MSG;
 
 pub const CS_CLASSDC = 0x0040;
 pub const CS_HREDRAW = 0x0002;
@@ -40,6 +41,12 @@ pub const WM_DESTROY = 0x0002;
 pub const WM_PAINT = 0x000F;
 pub const WM_CLOSE = 0x0010;
 pub const WM_ACTIVATEAPP = 0x001C;
+pub const WM_QUIT = 0x0012;
+
+// remove message
+pub const PM_NOREMOVE = 0x0000;
+pub const PM_REMOVE = 0x0001;
+pub const PM_NOYIELD = 0x0002;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-paintstruct
 pub const PAINTSTRUCT = extern struct {
@@ -107,3 +114,9 @@ pub extern "user32" fn TranslateMessage(message: *const MSG) callconv(WINAPI) BO
 
 // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-releasedc
 pub extern "user32" fn ReleaseDC(handle: ?HWND, hdc: HDC) callconv(WINAPI) i32;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
+pub extern "user32" fn PeekMessageW(lpMsg: LPMSG, handle: ?HWND, messageFilterMin: UINT, messageFilterMax: UINT, removeMessage: UINT) callconv(WINAPI) BOOL;
+
+// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdc
+pub extern "user32" fn GetDC(handle: HWND) callconv(WINAPI) HDC;

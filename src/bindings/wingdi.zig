@@ -13,6 +13,7 @@ const HANDLE = win32.HANDLE;
 const HBITMAP = win32.HANDLE;
 const HGDIOBJ = win32.HANDLE;
 const LONG = win32.LONG;
+pub const BYTE = u8;
 
 // rop - raster operation code
 pub const PATCOPY = 0x00F00021; // Copies the specified pattern into the destination bitmap.
@@ -43,23 +44,23 @@ pub const BITMAPINFO = extern struct {
 };
 
 pub const RGBQUAD = extern struct {
-    blue: u8,
-    green: u8,
-    red: u8,
-    reserved: u8,
+    blue: BYTE,
+    green: BYTE,
+    red: BYTE,
+    reserved: BYTE,
 };
 
 // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
 pub const BITMAPINFOHEADER = extern struct {
-    size: DWORD = @sizeOf(BITMAPINFOHEADER),
+    size: DWORD,
     width: i32,
     height: i32,
     planes: WORD,
     bitCount: WORD,
     compression: DWORD,
     sizeImage: DWORD,
-    xPelsPerMeter: u32,
-    yPelsPerMeter: u32,
+    xPelsPerMeter: i32,
+    yPelsPerMeter: i32,
     clrUsed: DWORD,
     clrImportant: DWORD,
 };
@@ -80,7 +81,7 @@ pub extern "gdi32" fn PatBlt(
 pub extern "gdi32" fn CreateDIBSection(hdc: HDC, pbmi: *const BITMAPINFO, usage: UINT, ppvBits: **anyopaque, hSection: ?HANDLE, offset: DWORD) callconv(WINAPI) HBITMAP;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-stretchdibits
-pub extern "gdi32" fn StretchDIBits(hdc: HDC, xDest: i32, yDest: i32, DestWidth: i32, DestHeight: i32, xSrc: i32, ySrc: i32, SrcWidth: i32, SrcHeight: i32, lpBits: *anyopaque, lpbmi: *const BITMAPINFO, iUsage: UINT, rop: DWORD) callconv(WINAPI) i32;
+pub extern "gdi32" fn StretchDIBits(hdc: HDC, xDest: i32, yDest: i32, DestWidth: i32, DestHeight: i32, xSrc: i32, ySrc: i32, SrcWidth: i32, SrcHeight: i32, lpBits: *anyopaque, lpbmi: [*c]const BITMAPINFO, iUsage: UINT, rop: DWORD) callconv(WINAPI) i32;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
 pub extern "gdi32" fn DeleteObject(objectHandle: HGDIOBJ) callconv(WINAPI) BOOL;
