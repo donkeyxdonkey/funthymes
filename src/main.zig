@@ -132,11 +132,8 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 
     switch (message) {
         b.WM_SIZE => {
-            var clientRect: RECT = undefined;
-            _ = b.GetClientRect(window, &clientRect);
-            const width: i32 = clientRect.right - clientRect.left;
-            const height: i32 = clientRect.bottom - clientRect.top;
-            resizeDIBSection(&gBuffer, width, height);
+            const dimension: win32WindowDimension = GetWindowDimension(window);
+            resizeDIBSection(&gBuffer, dimension.width, dimension.height);
         },
         b.WM_DESTROY => {
             running = false;
