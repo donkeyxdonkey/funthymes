@@ -5,6 +5,7 @@ const bindings = struct {
     pub usingnamespace @import("bindings/memoryapi.zig");
     pub usingnamespace @import("bindings/heapapi.zig");
     pub usingnamespace @import("bindings/errhandlingapi.zig");
+    pub usingnamespace @import("bindings/xinput.zig");
 };
 
 const b = bindings;
