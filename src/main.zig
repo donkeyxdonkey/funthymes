@@ -113,6 +113,10 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
                 _ = b.DispatchMessageW(&Message);
             }
 
+            for (0..69) |x| {
+                _ = &x;
+            }
+
             renderWeirdGradient(gBuffer, xOffset, yOffset);
             const deviceContext: HDC = b.GetDC(window);
             const dimension: win32WindowDimension = GetWindowDimension(window);
