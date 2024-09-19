@@ -36,6 +36,22 @@ const win32OffscreenBuffer = struct {
     bytesPerPixel: i32,
 };
 
+const win32WindowDimension = struct {
+    width: i32,
+    height: i32,
+};
+
+fn GetWindowDimension(window: HWND) win32WindowDimension {
+    var result: win32WindowDimension = undefined;
+
+    var clientRect: RECT = undefined;
+    b.GetClientRect(window, &clientRect);
+    result.width = clientRect.right - clientRect.left;
+    result.height = clientRect.bottom - clientRect.top;
+
+    return result;
+}
+
 fn init() void {
     gBuffer.info.header.planes = 1;
     gBuffer.info.header.bitCount = 32;
