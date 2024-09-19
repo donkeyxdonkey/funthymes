@@ -45,7 +45,7 @@ fn GetWindowDimension(window: HWND) win32WindowDimension {
     var result: win32WindowDimension = undefined;
 
     var clientRect: RECT = undefined;
-    b.GetClientRect(window, &clientRect);
+    _ = b.GetClientRect(window, &clientRect);
     result.width = clientRect.right - clientRect.left;
     result.height = clientRect.bottom - clientRect.top;
 
@@ -112,11 +112,9 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
 
             renderWeirdGradient(gBuffer, xOffset, yOffset);
             const deviceContext: HDC = b.GetDC(window);
-            var clientRect: RECT = undefined;
-            _ = b.GetClientRect(window, &clientRect);
-            const windowWidth = clientRect.right - clientRect.left;
-            const windowHeight = clientRect.bottom - clientRect.top;
-            updateWindow(gBuffer, deviceContext, clientRect, 0, 0, windowWidth, windowHeight);
+            const dimension: win32WindowDimension = GetWindowDimension(window);
+
+            updateWindow(gBuffer, deviceContext, 0, 0, dimension.width, dimension.height);
             _ = b.ReleaseDC(window, deviceContext);
             xOffset += 1;
             yOffset += 1;
@@ -153,13 +151,10 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 
             const x: i32 = paint.rect.left;
             const y: i32 = paint.rect.top;
-            const width: i32 = paint.rect.right - paint.rect.left;
-            const height: i32 = paint.rect.bottom - paint.rect.top;
 
-            var clientRect: RECT = undefined;
-            _ = b.GetClientRect(window, &clientRect);
+            const dimension: win32WindowDimension = GetWindowDimension(window);
 
-            updateWindow(gBuffer, deviceContext, clientRect, x, y, width, height);
+            updateWindow(gBuffer, deviceContext, x, y, dimension.width, dimension.height);
             _ = b.ReleaseDC(window, deviceContext);
         },
         else => {
@@ -215,14 +210,9 @@ fn renderWeirdGradient(buffer: win32OffscreenBuffer, xOffset: usize, yOffset: us
     //std.debug.print("{d} ns\n", .{end - start});
 }
 
-fn updateWindow(buffer: win32OffscreenBuffer, deviceContext: HDC, windowRect: RECT, x: i32, y: i32, width: i32, height: i32) void {
+fn updateWindow(buffer: win32OffscreenBuffer, deviceContext: HDC, x: i32, y: i32, windowWidth: i32, windowHeight: i32) void {
     _ = x;
     _ = y;
-    _ = width;
-    _ = height;
-
-    const windowWidth = windowRect.right - windowRect.left;
-    const windowHeight = windowRect.bottom - windowRect.top;
 
     //print("{any}\n", .{buffer.info});
 
