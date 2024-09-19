@@ -24,11 +24,13 @@ const HMENU = win32.HMENU;
 const LPVOID = win32.LPVOID;
 const SHORT = win32.SHORT;
 
+// https://learn.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_state
 pub const XINPUT_STATE = extern struct {
     packetNumber: DWORD,
     gamepad: XINPUT_GAMEPAD,
 };
 
+// https://learn.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad
 pub const XINPUT_GAMEPAD = extern struct {
     buttons: WORD,
     lefTrigger: BYTE,
@@ -39,4 +41,5 @@ pub const XINPUT_GAMEPAD = extern struct {
     thumbRY: SHORT,
 };
 
-pub extern "Xinput1_4" fn XInputGetState(userIndex: DWORD, state: *XINPUT_STATE) callconv(WINAPI) DWORD;
+// https://learn.microsoft.com/en-us/windows/win32/api/xinput/nf-xinput-xinputgetstate
+pub extern "Xinput1_4" fn XInputGetState(userIndex: DWORD, state: [*c]XINPUT_STATE) callconv(WINAPI) DWORD;
