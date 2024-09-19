@@ -24,6 +24,8 @@ const HMENU = win32.HMENU;
 const LPVOID = win32.LPVOID;
 const SHORT = win32.SHORT;
 
+pub const XUSER_MAX_COUNT: u32 = 4;
+
 pub const XINPUT_GAMEPAD_DPAD_UP = 0x0001;
 pub const XINPUT_GAMEPAD_DPAD_DOWN = 0x0002;
 pub const XINPUT_GAMEPAD_DPAD_LEFT = 0x0004;
