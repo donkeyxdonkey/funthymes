@@ -94,6 +94,9 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
     const windowHandle = b.CreateWindowExW(0, className, className, b.WS_WINDOWOVERLAPPED | b.WS_VISIBLE, 100, 100, 800, 600, null, null, instance, null);
 
     if (windowHandle) |window| {
+        //const dimension: win32WindowDimension = GetWindowDimension(window);
+        resizeDIBSection(&gBuffer, 1280, 720);
+
         var xOffset: usize = 0;
         var yOffset: usize = 0;
 
@@ -132,8 +135,8 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 
     switch (message) {
         b.WM_SIZE => {
-            const dimension: win32WindowDimension = GetWindowDimension(window);
-            resizeDIBSection(&gBuffer, dimension.width, dimension.height);
+            //const dimension: win32WindowDimension = GetWindowDimension(window);
+            //resizeDIBSection(&gBuffer, dimension.width, dimension.height);
         },
         b.WM_DESTROY => {
             running = false;
@@ -213,5 +216,19 @@ fn updateWindow(buffer: win32OffscreenBuffer, deviceContext: HDC, x: i32, y: i32
 
     //print("{any}\n", .{buffer.info});
 
-    _ = b.StretchDIBits(deviceContext, 0, 0, windowWidth, windowHeight, 0, 0, buffer.width, buffer.height, buffer.memory, &buffer.info, b.DIB_RGB_COLORS, b.SRCCOPY);
+    _ = b.StretchDIBits(
+        deviceContext,
+        0,
+        0,
+        windowWidth,
+        windowHeight,
+        0,
+        0,
+        buffer.width,
+        buffer.height,
+        buffer.memory,
+        &buffer.info,
+        b.DIB_RGB_COLORS,
+        b.SRCCOPY,
+    );
 }
