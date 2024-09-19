@@ -79,7 +79,7 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
 
     if (windowHandle) |window| {
         var xOffset: usize = 0;
-        const yOffset: usize = 0;
+        var yOffset: usize = 0;
 
         running = true;
 
@@ -103,6 +103,7 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
             updateWindow(gBuffer, deviceContext, clientRect, 0, 0, windowWidth, windowHeight);
             _ = b.ReleaseDC(window, deviceContext);
             xOffset += 1;
+            yOffset += 1;
         }
     } else {
         const errorCode = win32.GetLastError();
