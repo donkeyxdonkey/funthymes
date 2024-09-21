@@ -37,6 +37,7 @@ const win32OffscreenBuffer = struct {
     width: i32,
     height: i32,
     bytesPerPixel: i32,
+    initialized: bool = false,
 };
 
 const win32WindowDimension = struct {
@@ -195,9 +196,11 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 }
 
 fn resizeDIBSection(buffer: *win32OffscreenBuffer, width: i32, height: i32) void {
-    if (buffer.*.memory != undefined) {
+    if (buffer.*.initialized) {
         _ = b.VirtualFree(buffer.*.memory, 0, b.MEM_RELEASE);
     }
+
+    buffer.*.initialized = true;
 
     buffer.*.width = width;
     buffer.*.height = height;
