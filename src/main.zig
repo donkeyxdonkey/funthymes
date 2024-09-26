@@ -7,6 +7,7 @@ const bindings = struct {
     pub usingnamespace @import("bindings/errhandlingapi.zig");
     pub usingnamespace @import("bindings/xinput.zig");
     pub usingnamespace @import("bindings/winerror.zig");
+    pub usingnamespace @import("bindings/virtualkeycodes.zig");
 };
 
 const b = bindings;
@@ -117,37 +118,11 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
                 _ = b.DispatchMessageW(&Message);
             }
 
-            for (0..b.XUSER_MAX_COUNT) |controllerIndex| {
-                var controllerState: b.XINPUT_STATE = undefined;
-                if (b.XInputGetState(@as(u32, @intCast(controllerIndex)), &controllerState) == b.ERROR_SUCCESS) {
-                    var pad: *b.XINPUT_GAMEPAD = &controllerState.gamepad;
-
-                    _ = &pad;
-                    //const up: bool = pad.*.buttons & b.XINPUT_GAMEPAD_DPAD_UP;
-                    //const down: bool = pad.*.buttons & b.XINPUT_GAMEPAD_DPAD_DOWN;
-                    //const left: bool = pad.*.buttons & b.XINPUT_GAMEPAD_DPAD_LEFT;
-                    //const right: bool = pad.*.buttons & b.XINPUT_GAMEPAD_DPAD_RIGHT;
-                    //const start: bool = pad.*.buttons & b.XINPUT_GAMEPAD_START;
-                    //const back: bool = pad.*.buttons & b.XINPUT_GAMEPAD_BACK;
-                    //const shoulderLeft: bool = pad.*.buttons & b.XINPUT_GAMEPAD_LEFT_SHOULDER;
-                    //const shoulderRight: bool = pad.*.buttons & b.XINPUT_GAMEPAD_RIGHT_SHOULDER;
-                    //const aButton: bool = pad.*.buttons & b.XINPUT_GAMEPAD_A;
-                    //const bButton: bool = pad.*.buttons & b.XINPUT_GAMEPAD_B;
-                    //const xButton: bool = pad.*.buttons & b.XINPUT_GAMEPAD_X;
-                    //const yButton: bool = pad.*.buttons & b.XINPUT_GAMEPAD_Y;
-
-                    //const stickX: i16 = pad.*.thumbLX;
-                    //const stickY: i16 = pad.*.thumbRX;
-                } else {
-                    // controller not plugged in
-                }
-            }
-
-            renderWeirdGradient(gBuffer, xOffset, yOffset);
+            renderWeirdGradient(&gBuffer, xOffset, yOffset);
             const deviceContext: HDC = b.GetDC(window);
             const dimension: win32WindowDimension = GetWindowDimension(window);
 
-            updateWindow(gBuffer, deviceContext, 0, 0, dimension.width, dimension.height);
+            updateWindow(&gBuffer, deviceContext, 0, 0, dimension.width, dimension.height);
             _ = b.ReleaseDC(window, deviceContext);
             xOffset += 1;
             yOffset += 1;
@@ -158,6 +133,40 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
     }
 
     return 0;
+}
+
+fn keyPressedEvent(vkCode: u32, lParam: LPARAM) void {
+    const wasDown: bool = (@as(u32, @intCast(lParam)) & (@as(u32, @intCast(1)) << 30)) != 0;
+    const isDown: bool = (@as(u32, @intCast(lParam)) & (@as(u32, @intCast(1)) << 31)) == 0;
+
+    if (wasDown == isDown)
+        return;
+
+    switch (vkCode) {
+        'P' => {
+            print("Pizza\n", .{});
+        },
+        'W' => {
+            print("Cowabunga\n", .{});
+        },
+        'X' => {
+            print("X: ", .{});
+
+            if (isDown) {
+                print("IsDown ", .{});
+            }
+
+            if (wasDown) {
+                print("WasDown ", .{});
+            }
+
+            print("\n", .{});
+        },
+        b.VK_UP => {
+            print("TurtlePower\n", .{});
+        },
+        else => {},
+    }
 }
 
 pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: LPARAM) callconv(WINAPI) LRESULT {
@@ -171,6 +180,16 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
         b.WM_DESTROY => {
             running = false;
         },
+        b.WM_KEYDOWN => {
+            const vkCode: u32 = @as(u32, @intCast(wParam));
+            keyPressedEvent(vkCode, lParam);
+        },
+        b.WM_KEYUP => {
+            const vkCode: u32 = @as(u32, @intCast(wParam));
+            keyPressedEvent(vkCode, lParam);
+        },
+        b.WM_SYSKEYDOWN => {},
+        b.WM_SYSKEYUP => {},
         b.WM_CLOSE => {
             running = false;
         },
@@ -184,7 +203,7 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
 
             const dimension: win32WindowDimension = GetWindowDimension(window);
 
-            updateWindow(gBuffer, deviceContext, x, y, dimension.width, dimension.height);
+            updateWindow(&gBuffer, deviceContext, x, y, dimension.width, dimension.height);
             _ = b.ReleaseDC(window, deviceContext);
         },
         else => {
@@ -211,15 +230,15 @@ fn resizeDIBSection(buffer: *win32OffscreenBuffer, width: i32, height: i32) void
 
     const bitmapMemorySize: usize = @as(usize, (@intCast((buffer.*.width * buffer.*.height) * buffer.*.bytesPerPixel)));
     buffer.*.memory = b.VirtualAlloc(null, bitmapMemorySize, b.MEM_COMMIT, b.PAGE_READWRITE);
-    renderWeirdGradient(buffer.*, 100, 0);
+    renderWeirdGradient(buffer, 100, 0);
 }
 
-fn renderWeirdGradient(buffer: win32OffscreenBuffer, xOffset: usize, yOffset: usize) void {
-    const pitch: usize = @as(usize, @intCast(buffer.width * buffer.bytesPerPixel));
-    var row: *u8 = @as(*u8, @ptrCast(buffer.memory));
+fn renderWeirdGradient(buffer: *win32OffscreenBuffer, xOffset: usize, yOffset: usize) void {
+    const pitch: usize = @as(usize, @intCast(buffer.*.width * buffer.*.bytesPerPixel));
+    var row: *u8 = @as(*u8, @ptrCast(buffer.*.memory));
 
-    const w: usize = @as(usize, @intCast(buffer.height));
-    const h: usize = @as(usize, @intCast(buffer.width));
+    const w: usize = @as(usize, @intCast(buffer.*.height));
+    const h: usize = @as(usize, @intCast(buffer.*.width));
 
     //const start = std.time.nanoTimestamp();
 
@@ -242,7 +261,7 @@ fn renderWeirdGradient(buffer: win32OffscreenBuffer, xOffset: usize, yOffset: us
     //std.debug.print("{d} ns\n", .{end - start});
 }
 
-fn updateWindow(buffer: win32OffscreenBuffer, deviceContext: HDC, x: i32, y: i32, windowWidth: i32, windowHeight: i32) void {
+fn updateWindow(buffer: *win32OffscreenBuffer, deviceContext: HDC, x: i32, y: i32, windowWidth: i32, windowHeight: i32) void {
     _ = x;
     _ = y;
 
@@ -256,10 +275,10 @@ fn updateWindow(buffer: win32OffscreenBuffer, deviceContext: HDC, x: i32, y: i32
         windowHeight,
         0,
         0,
-        buffer.width,
-        buffer.height,
-        buffer.memory,
-        &buffer.info,
+        buffer.*.width,
+        buffer.*.height,
+        buffer.*.memory,
+        &buffer.*.info,
         b.DIB_RGB_COLORS,
         b.SRCCOPY,
     );

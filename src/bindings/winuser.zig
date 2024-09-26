@@ -43,6 +43,11 @@ pub const WM_CLOSE = 0x0010;
 pub const WM_ACTIVATEAPP = 0x001C;
 pub const WM_QUIT = 0x0012;
 
+pub const WM_KEYDOWN = 0x0100;
+pub const WM_KEYUP = 0x0101;
+pub const WM_SYSKEYDOWN = 0x0104;
+pub const WM_SYSKEYUP = 0x0105;
+
 // remove message
 pub const PM_NOREMOVE = 0x0000;
 pub const PM_REMOVE = 0x0001;
