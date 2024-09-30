@@ -28,6 +28,8 @@ const HBITMAP = win32.HANDLE;
 const HRESULT = win32.LONG;
 const DWORD = win32.DWORD;
 
+const bool32 = i32;
+
 var running: bool = false;
 
 var gBuffer: win32OffscreenBuffer = undefined;
@@ -99,7 +101,6 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
     const windowHandle = b.CreateWindowExW(0, className, className, b.WS_WINDOWOVERLAPPED | b.WS_VISIBLE, 100, 100, 800, 600, null, null, instance, null);
 
     if (windowHandle) |window| {
-        //const dimension: win32WindowDimension = GetWindowDimension(window);
         resizeDIBSection(&gBuffer, 1280, 720);
 
         var xOffset: usize = 0;
@@ -136,35 +137,30 @@ pub fn wWinMain(instance: HINSTANCE, previousInstance: ?HINSTANCE, commandLine: 
 }
 
 fn keyPressedEvent(vkCode: u32, lParam: LPARAM) void {
-    const wasDown: bool = (@as(u32, @intCast(lParam)) & (@as(u32, @intCast(1)) << 30)) != 0;
-    const isDown: bool = (@as(u32, @intCast(lParam)) & (@as(u32, @intCast(1)) << 31)) == 0;
+    const lp32: u32 = @as(u32, @intCast(lParam));
+    const wasDown: bool = (lp32 & (@as(u32, @intCast(1)) << 30)) != 0;
+    const isDown: bool = (lp32 & (@as(u32, @intCast(1)) << 31)) == 0;
 
     if (wasDown == isDown)
         return;
 
     switch (vkCode) {
-        'P' => {
-            print("Pizza\n", .{});
-        },
-        'W' => {
-            print("Cowabunga\n", .{});
-        },
-        'X' => {
-            print("X: ", .{});
-
-            if (isDown) {
-                print("IsDown ", .{});
+        'A' => {},
+        'S' => {},
+        'Z' => {},
+        'X' => {},
+        'C' => {},
+        b.VK_SPACE => {},
+        b.VK_F4 => {
+            const altKeyDown: bool = (lp32 & (@as(u32, @intCast(1)) << 29)) != 0;
+            if (altKeyDown) {
+                running = false;
             }
-
-            if (wasDown) {
-                print("WasDown ", .{});
-            }
-
-            print("\n", .{});
         },
-        b.VK_UP => {
-            print("TurtlePower\n", .{});
-        },
+        b.VK_LEFT => {},
+        b.VK_UP => {},
+        b.VK_RIGHT => {},
+        b.VK_DOWN => {},
         else => {},
     }
 }
@@ -173,10 +169,7 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
     const result: i64 = 0;
 
     switch (message) {
-        b.WM_SIZE => {
-            //const dimension: win32WindowDimension = GetWindowDimension(window);
-            //resizeDIBSection(&gBuffer, dimension.width, dimension.height);
-        },
+        b.WM_SIZE => {},
         b.WM_DESTROY => {
             running = false;
         },
@@ -188,8 +181,14 @@ pub fn mainWindowCallback(window: HWND, message: UINT, wParam: WPARAM, lParam: L
             const vkCode: u32 = @as(u32, @intCast(wParam));
             keyPressedEvent(vkCode, lParam);
         },
-        b.WM_SYSKEYDOWN => {},
-        b.WM_SYSKEYUP => {},
+        b.WM_SYSKEYDOWN => {
+            const vkCode: u32 = @as(u32, @intCast(wParam));
+            keyPressedEvent(vkCode, lParam);
+        },
+        b.WM_SYSKEYUP => {
+            const vkCode: u32 = @as(u32, @intCast(wParam));
+            keyPressedEvent(vkCode, lParam);
+        },
         b.WM_CLOSE => {
             running = false;
         },
